@@ -1,63 +1,38 @@
-﻿Account accaunt = new(1000);
-accaunt.SendAddOk = OkGreenText;
-accaunt.Add(500);
+﻿using NetDelegateProject;
+using System.Dynamic;
 
-accaunt.SendAddOk = OkMagentaText;
-accaunt.Add(500);
+MessageBuilder messageBuilder = GetMessage;
+messageBuilder += GetEmailMessage;
 
-void OkGreenText(string message)
+Message GetMessage(string text)
 {
-    var currentForground = Console.ForegroundColor;
-    
-    Console.ForegroundColor = ConsoleColor.Green;
-    Console.WriteLine(message);
-    
-    Console.ForegroundColor = currentForground;
+    return new Message(text);
 }
 
-void OkMagentaText(string message)
+EmailMessage GetEmailMessage(string text)
 {
-    var currentForground = Console.ForegroundColor;
-
-    Console.ForegroundColor = ConsoleColor.Magenta;
-    Console.WriteLine(message);
-
-    Console.ForegroundColor = currentForground;
+    return new EmailMessage(text);
 }
 
 
-public class Account
+MessageReceiveHandler messageReceive = EmailMessageReceive;
+messageReceive += MessageReceive;
+
+void EmailMessageReceive(EmailMessage message)
 {
-    public delegate void SendMessage(string message);
-
-    public SendMessage SendAddOk { set; get; }
-    public SendMessage SendTakeOk { set; get; }
-    public SendMessage SendTakeError { set; get; }
-
-    int amount;
-    public int Amount { get; private set; }
-
-    public Account(int amount)
-    {
-        this.amount = amount;
-    }
-
-    public void Add(int amount)
-    {
-        this.amount += amount;
-        SendAddOk($"Add {amount} rub. Total: {this.amount}");
-    }
-
-    public void Take(int amount)
-    {
-        if(amount > this.amount)
-        {
-            this.amount -= amount;
-            SendTakeOk($"Take {amount} rub. Total: {this.amount}");
-        }
-        else
-            SendTakeError($"No many. Total: {this.amount}.");
-
-    }
-
+    message.Print();
 }
+
+void MessageReceive(Message message)
+{
+    message.Print();
+}
+
+
+delegate Message MessageBuilder(string text);
+
+delegate void MessageReceiveHandler(EmailMessage message);
+
+
+
+
